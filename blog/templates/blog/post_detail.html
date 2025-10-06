@@ -1,0 +1,60 @@
+{% extends 'blog/base.html' %}
+
+{% block title %}{{ post.title }}{% endblock %}
+
+{% block content %}
+    <a href="{% url 'post_list' %}" class="back-link">&larr; Back to all posts</a>
+    
+    <div class="post">
+        <h2>{{ post.title }}</h2>
+        <div class="post-meta">
+            By {% if post.author %}{{ post.author.username }}{% else %}Anonymous{% endif %} | {{ post.created_at|date:"F d, Y" }}
+            {% if post.updated_at != post.created_at %}
+                | Updated: {{ post.updated_at|date:"F d, Y" }}
+            {% endif %}
+        </div>
+        {% if post.categories.all %}
+            <div style="margin-bottom: 1rem;">
+                {% for category in post.categories.all %}
+                    <span class="category-tag">{{ category.name }}</span>
+                {% endfor %}
+            </div>
+        {% endif %}
+        <div class="post-content">
+            {{ post.content }}
+        </div>
+        
+        <div class="post-actions">
+            <a href="{% url 'post_update' post.pk %}" class="btn btn-primary">Edit</a>
+            <a href="{% url 'post_delete' post.pk %}" class="btn btn-danger">Delete</a>
+        </div>
+    </div>
+    
+    <div class="comments-section">
+        <h3>Comments ({{ comments.count }})</h3>
+        
+        <div class="post" style="margin-top: 1rem;">
+            <h4>Add a Comment</h4>
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    {{ comment_form.content }}
+                </div>
+                <button type="submit" class="btn btn-primary">Post Comment</button>
+            </form>
+        </div>
+        
+        {% for comment in comments %}
+            <div class="comment">
+                <div class="comment-meta">
+                    <strong>{% if comment.author %}{{ comment.author.username }}{% else %}Anonymous{% endif %}</strong> | {{ comment.created_at|date:"F d, Y H:i" }}
+                </div>
+                <div class="comment-content">
+                    {{ comment.content }}
+                </div>
+            </div>
+        {% empty %}
+            <p>No comments yet. Be the first to comment!</p>
+        {% endfor %}
+    </div>
+{% endblock %}
